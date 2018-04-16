@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+		<title>Informação Geográfica e Visualização</title>
+    	<link rel="stylesheet" href="libraries/ol.css" type="text/css">
+    	<!-- The line below is only needed for old environments like Internet Explorer and Android 4.x -->
+    	<script src="https://cdn.polyfill.io/v2/polyfill.min.js?features=requestAnimationFrame,Element.prototype.classList,URL"></script>
+    	<script src="libraries/ol.js"></script>
+  	</head>
+  	<body>
+		<div id="map" class="map"></div>
+     	<select id="layer-select">
+       		<option value="Aerial" selected>Aerial</option>
+       		<option value="AerialWithLabels">Aerial with labels</option>
+       		<option value="Road">Road (static)</option>
+       		<option value="RoadOnDemand">Road (dynamic)</option>
+       		<!--<option value="collinsBart">Collins Bart</option>-->
+       		<!--<option value="ordnanceSurvey">Ordnance Survey</option>-->
+	 	</select>
+	 	<input id="checkBoxLayerPolygon" type="checkbox" checked="true" style="margin-left: 20px;"/>
+		<label for="checkBoxLayerPolygon" style="font-family: Arial; font-size: 13.3333px; padding-right: 20px;">Concelho do Porto</label>
+		<input id="checkBoxLayerLine" type="checkbox" checked="true"/>
+		<label for="checkBoxLayerLine" style="font-family: Arial; font-size: 13.3333px; padding-right: 20px;">Rede Viária</label>
+		<input id="checkBoxLayerPoint" type="checkbox" checked="true"/>
+	 	<label for="checkBoxLayerPoint" style="font-family: Arial; font-size: 13.3333px; padding-right: 20px;">Pontos de Interesse</label>
+		</div>
+    	<script>
+			var styles = [
+				'Road',
+				'RoadOnDemand',
+				'Aerial',
+				'AerialWithLabels'//,
+				//'collinsBart',
+				//'ordnanceSurvey'
+			];
+		
+			var layers = [];
+		
+			var i, ii;
+		
+			for (i = 0, ii = styles.length; i < ii; ++i) {
+				layers.push(new ol.layer.Tile({
+					visible: false,
+					preload: Infinity,
+					source: new ol.source.BingMaps({
+						key: 'AqpkOitxbnh_CJ3NT5suGaaEPYsCwl3LByiJIMjNDCa2tTN-ZxmpTOKfUk7CjBoK',
+						imagerySet: styles[i]
+						// use maxZoom 19 to see stretched tiles instead of the BingMaps
+						// "no photos at this zoom level" tiles
+						// maxZoom: 19
+					})
+				}));
+			}
+
+			layers.push(new ol.layer.Tile({
+				source: new ol.source.TileWMS({
+					url: 'http://localhost:8080/geoserver/wms',
+					params: {
+						'LAYERS': 'BGRI:bgri11_cont_conc_porto_unified',
+						'TILED': true
+					},
+					serverType: 'geoserver',
+					projection: 3763
+				})
+			}));
+
+			layers.push(new ol.layer.Tile({
+				source: new ol.source.TileWMS({
+					url: 'http://localhost:8080/geoserver/wms',
+					params: {
+						'LAYERS': 'BGRI:rede_viaria_conc_porto',
+						'TILED': true
+					},
+					serverType: 'geoserver',
+					projection: 3763
+				})
+			}));
+
+			layers.push(new ol.layer.Image({
+				source: new ol.source.ImageWMS({
+					url: 'http://localhost:8080/geoserver/wms',
+					params: {
+						'LAYERS': 'BGRI:points_conc_porto',
+						'TILED': true
+					},
+					serverType: 'geoserver',
+					projection: 3763
+				})
+			}));
+
+			var map = new ol.Map({
+				layers: layers,
+				// Improve user experience by loading tiles while dragging/zooming. Will make
+				// zooming choppy on mobile or slow devices.
+				loadTilesWhileInteracting: true,
+				target: 'map',
+				view: new ol.View({
+					//WebMercator 3857
+					center: [-963679.81, 5033492.99],
+					zoom: 11
+				})
+			});
+
+			var select = document.getElementById('layer-select');
+			var checkbox_polygon = document.getElementById('checkBoxLayerPolygon');
+			var checkbox_line = document.getElementById('checkBoxLayerLine');
+			var checkbox_point = document.getElementById('checkBoxLayerPoint');
+		
+			function onChange() {
+				var style = select.value;
+				for (var i = 0, ii = layers.length; i < ii; ++i) {
+					layers[i].setVisible(styles[i] === style);
+					layers[layers.length - 3].setVisible(checkbox_polygon.checked);
+					layers[layers.length - 2].setVisible(checkbox_line.checked);
+					layers[layers.length - 1].setVisible(checkbox_point.checked);
+				}
+			};
+		
+			select.addEventListener('change', onChange);
+			checkbox_polygon.addEventListener('change', onChange);
+			checkbox_line.addEventListener('change', onChange);
+			checkbox_point.addEventListener('change', onChange);
+		
+			onChange();
+    	</script>
+  	</body>
+</html>
