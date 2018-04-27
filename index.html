@@ -4,19 +4,16 @@
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 		<title>Informação Geográfica e Visualização</title>
     	<link rel="stylesheet" href="libraries/ol.css" type="text/css">
-    	<!-- The line below is only needed for old environments like Internet Explorer and Android 4.x -->
-    	<script src="https://cdn.polyfill.io/v2/polyfill.min.js?features=requestAnimationFrame,Element.prototype.classList,URL"></script>
     	<script src="libraries/ol.js"></script>
   	</head>
   	<body>
 		<div id="map" class="map"></div>
      	<select id="layer-select">
-       		<option value="Aerial" selected>Aerial</option>
-       		<option value="AerialWithLabels">Aerial with labels</option>
-       		<option value="Road">Road (static)</option>
-       		<option value="RoadOnDemand">Road (dynamic)</option>
-       		<!--<option value="collinsBart">Collins Bart</option>-->
-       		<!--<option value="ordnanceSurvey">Ordnance Survey</option>-->
+       		<option value="Aerial" selected>Bing (aéreo)</option>
+       		<!--<option value="AerialWithLabels">Bing (áereo) (com etiquetas)</option>
+       		<option value="Road">Bing Estrada (estático)</option>
+			<option value="RoadOnDemand">Bing Estrada (dinâmico)</option>-->
+			<option value="OSM">OSM</option>
 	 	</select>
 	 	<input id="checkBoxLayerPolygon" type="checkbox" checked="true" style="margin-left: 20px;"/>
 		<label for="checkBoxLayerPolygon" style="font-family: Arial; font-size: 13.3333px; padding-right: 20px;">Concelho do Porto</label>
@@ -28,33 +25,36 @@
     	<script>
 			var styles = [
 				'Road',
-				'RoadOnDemand',
+				/*'RoadOnDemand',
 				'Aerial',
-				'AerialWithLabels'//,
-				//'collinsBart',
-				//'ordnanceSurvey'
+				'AerialWithLabels',*/
+				'OSM'
 			];
 		
 			var layers = [];
 		
 			var i, ii;
 		
-			for (i = 0, ii = styles.length; i < ii; ++i) {
+			for (i = 0, ii = styles.length - 1; i < ii; ++i) {
 				layers.push(new ol.layer.Tile({
 					visible: false,
 					preload: Infinity,
 					source: new ol.source.BingMaps({
 						key: 'AqpkOitxbnh_CJ3NT5suGaaEPYsCwl3LByiJIMjNDCa2tTN-ZxmpTOKfUk7CjBoK',
 						imagerySet: styles[i]
-						// use maxZoom 19 to see stretched tiles instead of the BingMaps
-						// "no photos at this zoom level" tiles
-						// maxZoom: 19
 					})
 				}));
 			}
 
 			layers.push(new ol.layer.Tile({
-				source: new ol.source.TileWMS({
+					visible: false,
+					preload: Infinity,
+					source: new ol.source.OSM()
+				}));
+
+			layers.push(new ol.layer.Tile({
+				//source: new ol.source.TileWMS({
+					source: new ol.source.TileWMS({
 					url: 'http://localhost:8080/geoserver/wms',
 					params: {
 						'LAYERS': 'BGRI:bgri11_cont_conc_porto_unified',
@@ -91,8 +91,6 @@
 
 			var map = new ol.Map({
 				layers: layers,
-				// Improve user experience by loading tiles while dragging/zooming. Will make
-				// zooming choppy on mobile or slow devices.
 				loadTilesWhileInteracting: true,
 				target: 'map',
 				view: new ol.View({
