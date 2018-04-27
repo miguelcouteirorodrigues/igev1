@@ -38,7 +38,7 @@
 			for (i = 0, ii = styles.length - 1; i < ii; ++i) {
 				layers.push(new ol.layer.Tile({
 					visible: false,
-					//preload: Infinity,
+					preload: Infinity,
 					source: new ol.source.BingMaps({
 						key: 'AqpkOitxbnh_CJ3NT5suGaaEPYsCwl3LByiJIMjNDCa2tTN-ZxmpTOKfUk7CjBoK',
 						imagerySet: styles[i]
@@ -48,7 +48,7 @@
 
 			layers.push(new ol.layer.Tile({
 					visible: false,
-					//preload: Infinity,
+					preload: Infinity,
 					source: new ol.source.OSM()
 				}));
 
