@@ -25,9 +25,9 @@
     	<script>
 			var styles = [
 				'Road',
-				/*'RoadOnDemand',
+				'RoadOnDemand',
 				'Aerial',
-				'AerialWithLabels',*/
+				'AerialWithLabels',
 				'OSM'
 			];
 		
@@ -38,7 +38,7 @@
 			for (i = 0, ii = styles.length - 1; i < ii; ++i) {
 				layers.push(new ol.layer.Tile({
 					visible: false,
-					preload: Infinity,
+					//preload: Infinity,
 					source: new ol.source.BingMaps({
 						key: 'AqpkOitxbnh_CJ3NT5suGaaEPYsCwl3LByiJIMjNDCa2tTN-ZxmpTOKfUk7CjBoK',
 						imagerySet: styles[i]
@@ -48,13 +48,12 @@
 
 			layers.push(new ol.layer.Tile({
 					visible: false,
-					preload: Infinity,
+					//preload: Infinity,
 					source: new ol.source.OSM()
 				}));
 
-			layers.push(new ol.layer.Tile({
-				//source: new ol.source.TileWMS({
-					source: new ol.source.TileWMS({
+			layers.push(new ol.layer.Image({
+				source: new ol.source.ImageWMS({
 					url: 'http://localhost:8080/geoserver/wms',
 					params: {
 						'LAYERS': 'BGRI:bgri11_cont_conc_porto_unified',
@@ -65,8 +64,8 @@
 				})
 			}));
 
-			layers.push(new ol.layer.Tile({
-				source: new ol.source.TileWMS({
+			layers.push(new ol.layer.Image({
+				source: new ol.source.ImageWMS({
 					url: 'http://localhost:8080/geoserver/wms',
 					params: {
 						'LAYERS': 'BGRI:rede_viaria_conc_porto',
